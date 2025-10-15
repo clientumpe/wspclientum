@@ -1,36 +1,28 @@
-// Importar Express.js const express = require ( 'express' );
+import express from 'express';
+const app = express();
+const PORT = process.env.PORT || 3000;
 
+// Ruta de verificación del webhook
+app.get('/', (req, res) => {
+  const mode = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
 
-// Crea una aplicación Express const app = express ();
+  // Verifica el token
+  if (mode && token) {
+    if (mode === 'subscribe' && token === process.env.VERIFY_TOKEN) {
+      console.log('Webhook verificado exitosamente');
+      res.status(200).send(challenge);
+    } else {
+      res.sendStatus(403);
+    }
+  } else {
+    res.sendStatus(400);
+  }
+});
 
+// Iniciar el servidor
+app.listen(PORT, () => {
+  console.log(`Servidor ejecutándose en el puerto ${PORT}`);
+});
 
-// Middleware para analizar cuerpos JSON 
-app.use ( express.json ( ) ) ;
-
-// Establecer puerto y verify_token const port = process . env . PORT || 3000 ; const verifyToken = process . env . VERIFY_TOKEN ;
- 
-
-
-// Ruta para solicitudes GET app.get 
-( ' /' , ( req , res ) = > { const { ' hub.mode' : mode , ' hub.challenge ' : challenge , 'hub.verify_token' : token } = req.query ;   
-       
-
-  si ( modo === 'suscribirse' && token === verifyToken ) { 
-    console.log ( 'WEBHOOK VERIFICADO' ) ; res.status (200) .send ( desafío ) 
-    ; } de lo contrario { res.status ( 
-    403 ) .end ( ) ; } } ) ;    
-    
-  
-
-
-// Ruta para solicitudes POST app.post 
-( ' /' , ( req , res ) => { const timestamp = new Date ( ). toISOString (). replace ( ' T' , ' ' ) .slice ( 0,19 ) ; console.log 
-  ( ` \ n \n Webhook recibido $ { timestamp } \n` ); console.log 
-  ( JSON.stringify ( req.body , null , 2 ) ) ; 
-  res.status ( 200 ) .end ( ); } ) ;   
-        
-
-
-// Iniciar la 
-aplicación del servidor . listen ( puerto , () => { 
-  console . log (` \n Escuchando en el puerto $ { puerto } \n `); });   
